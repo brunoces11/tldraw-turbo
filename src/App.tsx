@@ -21,12 +21,24 @@ import { IconTool } from "./IconTool/IconTool";
 import { IconDialogHandler } from "./IconTool/IconDialogHandler";
 import { extendWithIconTool } from "./IconTool/extendWithIconTool.tsx";
 import { LineWidthStylePanel } from "./LineWidthStylePanel";
+import { FilesProvider } from "./files/FilesContext";
+import { FilesMenuPanel } from "./files/FilesMenuPanel";
+import { useFiles } from "./files/useFiles";
 
 export default function App() {
+  return (
+    <FilesProvider>
+      <TldrawApp />
+    </FilesProvider>
+  );
+}
+
+function TldrawApp() {
   const [isPresentationModeActive, setIsPresentationModeActive] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [isPresentationEditModeActive, setIsPresentationEditModeActive] = useState(false);
   const editorRef = useRef<Editor | null>(null);
+  const { setEditor } = useFiles();
 
   const togglePresentationMode = () => {
     setIsPresentationModeActive((prev) => {
@@ -47,7 +59,6 @@ export default function App() {
   return (
     <div style={{ position: "fixed", inset: 0 }}>
       <Tldraw
-        persistenceKey="tldraw-present"
         onUiEvent={(event) => {
           if (event === "change-page") {
             setCurrentStep(0);
@@ -78,6 +89,7 @@ export default function App() {
         }}
         components={{
           ...(isPresentationEditModeActive ? { InFrontOfTheCanvas } : {}),
+          MenuPanel: FilesMenuPanel,
           StylePanel: isPresentationModeActive ? null : LineWidthStylePanel,
           Toolbar: (props) => {
             const tools = useTools();
@@ -120,6 +132,7 @@ export default function App() {
         assetUrls={assetUrls}
         onMount={(editor) => {
           editorRef.current = editor;
+          window.setTimeout(() => setEditor(editor), 0);
           editor.getInitialMetaForShape = () => {
             return {
               groupId: 0,
