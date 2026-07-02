@@ -20,6 +20,7 @@ import { WelcomeDialogHandler } from "./WelcomeDialog/WelcomeDialogHandler";
 import { IconTool } from "./IconTool/IconTool";
 import { IconDialogHandler } from "./IconTool/IconDialogHandler";
 import { extendWithIconTool } from "./IconTool/extendWithIconTool.tsx";
+import { LineWidthStylePanel } from "./LineWidthStylePanel";
 
 export default function App() {
   const [isPresentationModeActive, setIsPresentationModeActive] = useState(false);
@@ -77,7 +78,7 @@ export default function App() {
         }}
         components={{
           ...(isPresentationEditModeActive ? { InFrontOfTheCanvas } : {}),
-          ...(isPresentationModeActive ? { StylePanel: null } : {}),
+          StylePanel: isPresentationModeActive ? null : LineWidthStylePanel,
           Toolbar: (props) => {
             const tools = useTools();
             const isIconSelected = useIsToolSelected(tools["icon"]);
