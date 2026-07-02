@@ -8,7 +8,7 @@ import {
   useIsToolSelected,
   useTools,
 } from "tldraw";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import "tldraw/tldraw.css";
 import { InFrontOfTheCanvas } from "./InFrontOfTheCanvas";
 import { CustomQuickActions } from "./CustomQuickActions";
@@ -23,7 +23,7 @@ import { extendWithIconTool } from "./IconTool/extendWithIconTool.tsx";
 import { LineWidthStylePanel } from "./LineWidthStylePanel";
 import { FilesProvider } from "./files/FilesContext";
 import { FilesMenuPanel } from "./files/FilesMenuPanel";
-import { useFiles } from "./files/useFiles";
+import { useFilesActions } from "./files/useFilesActions";
 
 export default function App() {
   return (
@@ -38,7 +38,7 @@ function TldrawApp() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isPresentationEditModeActive, setIsPresentationEditModeActive] = useState(false);
   const editorRef = useRef<Editor | null>(null);
-  const { setEditor } = useFiles();
+  const { setEditor } = useFilesActions();
 
   const togglePresentationMode = () => {
     setIsPresentationModeActive((prev) => {
@@ -56,6 +56,70 @@ function TldrawApp() {
     setIsPresentationModeActive(false);
   };
 
+  const components = useMemo(
+    () => ({
+      ...(isPresentationEditModeActive ? { InFrontOfTheCanvas } : {}),
+      MenuPanel: FilesMenuPanel,
+      StylePanel: isPresentationModeActive ? null : LineWidthStylePanel,
+      Toolbar: (props: Parameters<typeof DefaultToolbar>[0]) => {
+        const tools = useTools();
+        const isIconSelected = useIsToolSelected(tools["icon"]);
+        return (
+          <DefaultToolbar {...props}>
+            <TldrawUiMenuItem {...tools["icon"]} isSelected={isIconSelected} />
+            <DefaultToolbarContent />
+          </DefaultToolbar>
+        );
+      },
+      QuickActions: () => {
+        const editor = useEditor();
+        const uniqueGroupIdsInOrder = getUniqueGroupIdsInOrder(editor);
+        const maxStep = uniqueGroupIdsInOrder.length - 1;
+        return (
+          <CustomQuickActions
+            currentStep={currentStep}
+            maxStep={maxStep}
+            isPresentationEditModeActive={isPresentationEditModeActive}
+          />
+        );
+      },
+      SharePanel,
+      TopPanel: () => (
+        <>
+          <WelcomeDialogHandler />
+          <IconDialogHandler />
+        </>
+      ),
+    }),
+    [currentStep, isPresentationEditModeActive, isPresentationModeActive]
+  );
+
+  const overrides = useMemo(
+    () => ({
+      tools(editor: Editor, tools: Parameters<typeof extendWithIconTool>[1]) {
+        return extendWithIconTool(editor, tools);
+      },
+      actions: (_editor: Editor, actions: ReturnType<typeof getNewActions> & Record<string, unknown>) => {
+        const uniqueGroupIdsInOrder = getUniqueGroupIdsInOrder(_editor);
+        const maxStep = uniqueGroupIdsInOrder.length - 1;
+
+        const newActions = getNewActions({
+          togglePresentationEditMode,
+          togglePresentationMode,
+          isPresentationModeActive,
+          maxStep,
+          setCurrentStep,
+        });
+
+        return {
+          ...actions,
+          ...newActions,
+        };
+      },
+    }),
+    [isPresentationModeActive]
+  );
+
   return (
     <div style={{ position: "fixed", inset: 0 }}>
       <Tldraw
@@ -65,62 +129,8 @@ function TldrawApp() {
           }
         }}
         tools={[IconTool]}
-        overrides={{
-          tools(editor, tools) {
-            return extendWithIconTool(editor, tools);
-          },
-          actions: (_editor, actions) => {
-            const uniqueGroupIdsInOrder = getUniqueGroupIdsInOrder(_editor);
-            const maxStep = uniqueGroupIdsInOrder.length - 1;
-
-            const newActions = getNewActions({
-              togglePresentationEditMode,
-              togglePresentationMode,
-              isPresentationModeActive,
-              maxStep,
-              setCurrentStep,
-            });
-
-            return {
-              ...actions,
-              ...newActions,
-            };
-          },
-        }}
-        components={{
-          ...(isPresentationEditModeActive ? { InFrontOfTheCanvas } : {}),
-          MenuPanel: FilesMenuPanel,
-          StylePanel: isPresentationModeActive ? null : LineWidthStylePanel,
-          Toolbar: (props) => {
-            const tools = useTools();
-            const isIconSelected = useIsToolSelected(tools["icon"]);
-            return (
-              <DefaultToolbar {...props}>
-                <TldrawUiMenuItem {...tools["icon"]} isSelected={isIconSelected} />
-                <DefaultToolbarContent />
-              </DefaultToolbar>
-            );
-          },
-          QuickActions: () => {
-            const editor = useEditor();
-            const uniqueGroupIdsInOrder = getUniqueGroupIdsInOrder(editor);
-            const maxStep = uniqueGroupIdsInOrder.length - 1;
-            return (
-              <CustomQuickActions
-                currentStep={currentStep}
-                maxStep={maxStep}
-                isPresentationEditModeActive={isPresentationEditModeActive}
-              />
-            );
-          },
-          SharePanel,
-          TopPanel: () => (
-            <>
-              <WelcomeDialogHandler />
-              <IconDialogHandler />
-            </>
-          ),
-        }}
+        overrides={overrides}
+        components={components}
         getShapeVisibility={(shape, editor) => {
           if (!isPresentationModeActive) {
             return "visible";

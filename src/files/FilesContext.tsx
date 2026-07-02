@@ -13,7 +13,12 @@ import {
   type ReactNode,
 } from "react";
 import { filesApi, type LocalFileEntry } from "./filesApi";
-import { FilesContext, type FilesContextValue } from "./FilesContextStore";
+import {
+  FilesActionsContext,
+  FilesContext,
+  type FilesActionsContextValue,
+  type FilesContextValue,
+} from "./FilesContextStore";
 
 function getNextCanvasName(files: LocalFileEntry[]) {
   const used = new Set(files.map((file) => file.name));
@@ -99,13 +104,14 @@ export function FilesProvider({ children }: { children: ReactNode }) {
       if (current) {
         const { file } = await filesApi.save(current.id, content);
         lastSavedContentRef.current = content;
-        setFiles((items) => items.map((item) => (item.id === file.id ? file : item)));
-        setCurrentFile(file);
+        currentFileRef.current = file;
         return;
       }
 
       const { file } = await filesApi.create(draftNameRef.current, content);
       lastSavedContentRef.current = content;
+      currentFileRef.current = file;
+      draftNameRef.current = file.name;
       setFiles((items) => [...items, file]);
       setCurrentFile(file);
       setDraftName(file.name);
@@ -139,7 +145,19 @@ export function FilesProvider({ children }: { children: ReactNode }) {
     if (!editor || !blankSnapshotRef.current) return;
 
     isApplyingRemoteChangeRef.current = true;
-    editor.loadSnapshot(blankSnapshotRef.current);
+    const existingShapeIds = editor.getCurrentPageShapes().map((shape) => shape.id);
+    if (existingShapeIds.length > 0) {
+      editor.deleteShapes(existingShapeIds);
+    }
+    editor.loadSnapshot(structuredClone(blankSnapshotRef.current), {
+      forceOverwriteSessionState: true,
+    });
+    editor.selectNone();
+    const residualShapeIds = editor.getCurrentPageShapes().map((shape) => shape.id);
+    if (residualShapeIds.length > 0) {
+      editor.deleteShapes(residualShapeIds);
+      editor.selectNone();
+    }
     editor.clearHistory();
     lastSavedContentRef.current = null;
     queueMicrotask(() => {
@@ -149,9 +167,12 @@ export function FilesProvider({ children }: { children: ReactNode }) {
 
   const createDraft = useCallback(async () => {
     await saveNowRef.current?.();
-    loadBlankCanvas();
+    const nextDraftName = getNextCanvasName(filesRef.current);
+    currentFileRef.current = null;
+    draftNameRef.current = nextDraftName;
     setCurrentFile(null);
-    setDraftName(getNextCanvasName(filesRef.current));
+    setDraftName(nextDraftName);
+    loadBlankCanvas();
   }, [loadBlankCanvas]);
 
   const openFile = useCallback(
@@ -167,8 +188,11 @@ export function FilesProvider({ children }: { children: ReactNode }) {
 
       isApplyingRemoteChangeRef.current = true;
       editor.loadSnapshot(parsed.value.getStoreSnapshot());
+      editor.selectNone();
       editor.clearHistory();
       lastSavedContentRef.current = content;
+      currentFileRef.current = file;
+      draftNameRef.current = file.name;
       setCurrentFile(file);
       setDraftName(file.name);
       queueMicrotask(() => {
@@ -181,9 +205,13 @@ export function FilesProvider({ children }: { children: ReactNode }) {
   const renameFile = useCallback(
     async (id: string, name: string) => {
       const { file } = await filesApi.rename(id, name);
+      if (currentFileRef.current?.id === id) {
+        currentFileRef.current = file;
+        draftNameRef.current = file.name;
+        setCurrentFile(file);
+        setDraftName(file.name);
+      }
       setFiles((items) => items.map((item) => (item.id === id ? file : item)));
-      setCurrentFile((item) => (item?.id === id ? file : item));
-      setDraftName(file.name);
     },
     []
   );
@@ -194,8 +222,11 @@ export function FilesProvider({ children }: { children: ReactNode }) {
       setFiles(files);
 
       if (currentFileRef.current?.id === id) {
+        currentFileRef.current = null;
         setCurrentFile(null);
-        setDraftName(getNextCanvasName(files));
+        const nextDraftName = getNextCanvasName(files);
+        draftNameRef.current = nextDraftName;
+        setDraftName(nextDraftName);
         lastSavedContentRef.current = null;
         loadBlankCanvas();
       }
@@ -220,13 +251,8 @@ export function FilesProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => () => autosaveCleanupRef.current?.(), []);
 
-  const value = useMemo<FilesContextValue>(
+  const actions = useMemo<FilesActionsContextValue>(
     () => ({
-      files,
-      currentFile,
-      draftName,
-      isDraft: !currentFile,
-      isLoading,
       setEditor,
       createDraft,
       openFile,
@@ -235,20 +261,30 @@ export function FilesProvider({ children }: { children: ReactNode }) {
       downloadFile,
       reorderFiles,
     }),
+    [setEditor, createDraft, openFile, renameFile, deleteFile, downloadFile, reorderFiles]
+  );
+
+  const value = useMemo<FilesContextValue>(
+    () => ({
+      files,
+      currentFile,
+      draftName,
+      isDraft: !currentFile,
+      isLoading,
+      ...actions,
+    }),
     [
       files,
       currentFile,
       draftName,
       isLoading,
-      setEditor,
-      createDraft,
-      openFile,
-      renameFile,
-      deleteFile,
-      downloadFile,
-      reorderFiles,
+      actions,
     ]
   );
 
-  return <FilesContext.Provider value={value}>{children}</FilesContext.Provider>;
+  return (
+    <FilesActionsContext.Provider value={actions}>
+      <FilesContext.Provider value={value}>{children}</FilesContext.Provider>
+    </FilesActionsContext.Provider>
+  );
 }
