@@ -1,0 +1,69 @@
+.target-mode-enabled {
+  cursor: crosshair !important;
+}
+
+.target-mode-layer {
+  inset: 0;
+  pointer-events: none;
+  position: fixed;
+  z-index: 2147483647;
+}
+
+.target-mode-box {
+  background: rgba(14, 165, 233, 0.12);
+  border: 2px solid #0ea5e9;
+  box-shadow: 0 0 0 1px rgba(2, 132, 199, 0.35), 0 10px 30px rgba(2, 6, 23, 0.18);
+  box-sizing: border-box;
+  position: fixed;
+}
+
+.target-mode-selected-box {
+  background: rgba(250, 204, 21, 0.16);
+  border: 2px solid #facc15;
+  box-shadow: 0 0 0 1px rgba(202, 138, 4, 0.45), 0 10px 28px rgba(133, 77, 14, 0.2);
+  box-sizing: border-box;
+  position: fixed;
+}
+
+.target-mode-label,
+.target-mode-selected-label {
+  border-radius: 5px;
+  box-shadow: 0 10px 28px rgba(2, 6, 23, 0.35);
+  box-sizing: border-box;
+  font: 700 11px/1 ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  letter-spacing: 0;
+  max-width: 320px;
+  overflow: hidden;
+  padding: 5px 8px;
+  pointer-events: none;
+  position: fixed;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  z-index: 2147483647;
+}
+
+.target-mode-label {
+  background: #071016;
+  border: 1px solid rgba(14, 165, 233, 0.55);
+  color: #bae6fd;
+}
+
+.target-mode-selected-label {
+  background: #171104;
+  border: 1px solid rgba(250, 204, 21, 0.58);
+  color: #fef3c7;
+}
+
+.target-mode-badge {
+  background: #06131f;
+  border: 1px solid rgba(125, 211, 252, 0.45);
+  border-radius: 6px;
+  bottom: 16px;
+  box-shadow: 0 12px 32px rgba(2, 6, 23, 0.28);
+  color: #e0f2fe;
+  font: 600 12px/1.2 ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  letter-spacing: 0;
+  padding: 10px 12px;
+  position: fixed;
+  right: 16px;
+}
