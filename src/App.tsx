@@ -1,12 +1,40 @@
 import {
+  ArrowDownToolbarItem,
+  ArrowLeftToolbarItem,
+  ArrowRightToolbarItem,
+  ArrowToolbarItem,
+  ArrowUpToolbarItem,
+  AssetToolbarItem,
+  CheckBoxToolbarItem,
+  CloudToolbarItem,
   DefaultToolbar,
-  DefaultToolbarContent,
+  DiamondToolbarItem,
+  DrawToolbarItem,
+  EllipseToolbarItem,
   Editor,
+  EraserToolbarItem,
+  FrameToolbarItem,
+  HandToolbarItem,
+  HeartToolbarItem,
+  HexagonToolbarItem,
+  HighlightToolbarItem,
+  LaserToolbarItem,
+  LineToolbarItem,
+  NoteToolbarItem,
+  OvalToolbarItem,
+  RectangleToolbarItem,
+  RhombusToolbarItem,
+  SelectToolbarItem,
+  StarToolbarItem,
+  TextToolbarItem,
   Tldraw,
   TldrawUiMenuItem,
+  ToolbarItem,
+  TriangleToolbarItem,
   useEditor,
   useIsToolSelected,
   useTools,
+  XBoxToolbarItem,
 } from "tldraw";
 import { useMemo, useRef, useState } from "react";
 import "tldraw/tldraw.css";
@@ -24,6 +52,10 @@ import { LineWidthStylePanel } from "./LineWidthStylePanel";
 import { FilesProvider } from "./files/FilesContext";
 import { FilesMenuPanel } from "./files/FilesMenuPanel";
 import { useFilesActions } from "./files/useFilesActions";
+import {
+  ScalableNoteShapeTool,
+  ScalableNoteShapeUtil,
+} from "./ScalableNoteTool/ScalableNoteShapeUtil";
 
 export default function App() {
   return (
@@ -67,7 +99,7 @@ function TldrawApp() {
         return (
           <DefaultToolbar {...props}>
             <TldrawUiMenuItem {...tools["icon"]} isSelected={isIconSelected} />
-            <DefaultToolbarContent />
+            <CustomToolbarContent />
           </DefaultToolbar>
         );
       },
@@ -128,7 +160,8 @@ function TldrawApp() {
             setCurrentStep(0);
           }
         }}
-        tools={[IconTool]}
+        tools={[IconTool, ScalableNoteShapeTool]}
+        shapeUtils={[ScalableNoteShapeUtil]}
         overrides={overrides}
         components={components}
         getShapeVisibility={(shape, editor) => {
@@ -151,5 +184,46 @@ function TldrawApp() {
         }}
       />
     </div>
+  );
+}
+
+function CustomToolbarContent() {
+  return (
+    <>
+      <SelectToolbarItem />
+      <HandToolbarItem />
+      <DrawToolbarItem />
+      <EraserToolbarItem />
+      <ArrowToolbarItem />
+      <TextToolbarItem />
+      <ToolbarItem tool="scalable-note" />
+      <NoteToolbarItem />
+      <AssetToolbarItem />
+
+      <RectangleToolbarItem />
+      <EllipseToolbarItem />
+      <TriangleToolbarItem />
+      <DiamondToolbarItem />
+
+      <HexagonToolbarItem />
+      <OvalToolbarItem />
+      <RhombusToolbarItem />
+      <StarToolbarItem />
+
+      <CloudToolbarItem />
+      <HeartToolbarItem />
+      <XBoxToolbarItem />
+      <CheckBoxToolbarItem />
+
+      <ArrowLeftToolbarItem />
+      <ArrowUpToolbarItem />
+      <ArrowDownToolbarItem />
+      <ArrowRightToolbarItem />
+
+      <LineToolbarItem />
+      <HighlightToolbarItem />
+      <LaserToolbarItem />
+      <FrameToolbarItem />
+    </>
   );
 }
