@@ -22,7 +22,7 @@ export function WelcomeDialog({
     <>
       <TldrawUiDialogBody style={{ fontSize: "16px", width: "600px" }}>
         <p>
-          Welcome to <b>tldraw-present!</b>
+          Welcome to <b>Tldraw Turbo!</b>
           <br />
           Use this as a whiteboard app like just you would use{" "}
           <a href="https://www.tldraw.com/" target="_blank">
