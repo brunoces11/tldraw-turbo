@@ -48,7 +48,8 @@ export function FileMenu() {
     )
   );
 
-  const activeName = currentFile?.name ?? draftName;
+  const activeFile = currentFile ? files.find((file) => file.id === currentFile.id) ?? null : null;
+  const activeName = activeFile?.name ?? draftName;
 
   useLayoutEffect(() => {
     setSortablePositionItems(
