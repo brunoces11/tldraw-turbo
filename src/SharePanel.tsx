@@ -11,7 +11,7 @@ export function SharePanel() {
       </TldrawUiButton>
       <Link href="https://yonatan.dev" icon="blog" label="Visit my blog" />
       <Link href="https://twitter.com/cowchimp" icon="twitter" label="Reach out on Twitter" />
-      <Link href="https://github.com/cowchimp/tldraw-present" icon="github" label="View source code on GitHub" />
+      <Link href="https://github.com/brunoces11/tldraw-turbo" icon="github" label="View source code on GitHub" />
     </div>
   );
 }
