@@ -46,6 +46,7 @@ import { IconTool } from "./IconTool/IconTool";
 import { IconDialogHandler } from "./IconTool/IconDialogHandler";
 import { extendWithIconTool } from "./IconTool/extendWithIconTool.tsx";
 import { LineWidthStylePanel } from "./LineWidthStylePanel";
+import { RichTextToolbarWithAlign } from "./RichTextToolbarWithAlign";
 import { FilesProvider } from "./files/FilesContext";
 import { FilesMenuPanel } from "./files/FilesMenuPanel";
 import { useFilesActions } from "./files/useFilesActions";
@@ -90,6 +91,7 @@ function TldrawApp() {
       ...(isPresentationEditModeActive ? { InFrontOfTheCanvas } : {}),
       MenuPanel: FilesMenuPanel,
       StylePanel: isPresentationModeActive ? null : LineWidthStylePanel,
+      RichTextToolbar: RichTextToolbarWithAlign,
       Toolbar: (props: Parameters<typeof DefaultToolbar>[0]) => {
         return (
           <>
