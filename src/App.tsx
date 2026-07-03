@@ -28,12 +28,9 @@ import {
   StarToolbarItem,
   TextToolbarItem,
   Tldraw,
-  TldrawUiMenuItem,
   ToolbarItem,
   TriangleToolbarItem,
   useEditor,
-  useIsToolSelected,
-  useTools,
   XBoxToolbarItem,
 } from "tldraw";
 import { useMemo, useRef, useState } from "react";
@@ -94,21 +91,10 @@ function TldrawApp() {
       MenuPanel: FilesMenuPanel,
       StylePanel: isPresentationModeActive ? null : LineWidthStylePanel,
       Toolbar: (props: Parameters<typeof DefaultToolbar>[0]) => {
-        const tools = useTools();
-        const isIconSelected = useIsToolSelected(tools["icon"]);
         return (
-          <>
-            <style>{`
-              .tlui-toolbar__tools .tlui-toolbar__tools__list > button[data-testid="tools.icon"],
-              .tlui-toolbar__tools .tlui-toolbar__tools__list > button[data-testid="tools.eraser"] {
-                display: none;
-              }
-            `}</style>
-            <DefaultToolbar {...props}>
-              <TldrawUiMenuItem {...tools["icon"]} isSelected={isIconSelected} />
-              <CustomToolbarContent />
-            </DefaultToolbar>
-          </>
+          <DefaultToolbar {...props}>
+            <CustomToolbarContent />
+          </DefaultToolbar>
         );
       },
       QuickActions: () => {
@@ -201,10 +187,8 @@ function CustomToolbarContent() {
       <SelectToolbarItem />
       <HandToolbarItem />
       <DrawToolbarItem />
-      <EraserToolbarItem />
       <ArrowToolbarItem />
       <TextToolbarItem />
-      <ToolbarItem tool="scalable-note" />
       <NoteToolbarItem />
       <AssetToolbarItem />
 
@@ -232,6 +216,10 @@ function CustomToolbarContent() {
       <HighlightToolbarItem />
       <LaserToolbarItem />
       <FrameToolbarItem />
+
+      <ToolbarItem tool="scalable-note" />
+      <ToolbarItem tool="icon" />
+      <EraserToolbarItem />
     </>
   );
 }
