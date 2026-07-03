@@ -92,9 +92,32 @@ function TldrawApp() {
       StylePanel: isPresentationModeActive ? null : LineWidthStylePanel,
       Toolbar: (props: Parameters<typeof DefaultToolbar>[0]) => {
         return (
-          <DefaultToolbar {...props}>
-            <CustomToolbarContent />
-          </DefaultToolbar>
+          <>
+            <style>{`
+              .tlui-toolbar__tools__list > button[data-testid="tools.highlight"],
+              .tlui-toolbar__tools__list > button[data-testid="tools.line"],
+              .tlui-toolbar__tools__list > button[data-testid="tools.laser"],
+              .tlui-toolbar__tools__list > button[data-testid="tools.asset"],
+              .tlui-toolbar__tools__list > button[data-testid="tools.note"],
+              .tlui-toolbar__tools__list > button[data-testid="tools.rectangle"],
+              .tlui-toolbar__tools__list > button[data-testid="tools.scalable-note"] {
+                display: flex !important;
+              }
+
+              [data-testid="tools.more-content"] > button[data-testid="tools.more.highlight"],
+              [data-testid="tools.more-content"] > button[data-testid="tools.more.line"],
+              [data-testid="tools.more-content"] > button[data-testid="tools.more.laser"],
+              [data-testid="tools.more-content"] > button[data-testid="tools.more.asset"],
+              [data-testid="tools.more-content"] > button[data-testid="tools.more.note"],
+              [data-testid="tools.more-content"] > button[data-testid="tools.more.rectangle"],
+              [data-testid="tools.more-content"] > button[data-testid="tools.more.scalable-note"] {
+                display: none !important;
+              }
+            `}</style>
+            <DefaultToolbar {...props}>
+              <CustomToolbarContent />
+            </DefaultToolbar>
+          </>
         );
       },
       QuickActions: () => {
