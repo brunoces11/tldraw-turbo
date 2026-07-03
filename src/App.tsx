@@ -97,10 +97,18 @@ function TldrawApp() {
         const tools = useTools();
         const isIconSelected = useIsToolSelected(tools["icon"]);
         return (
-          <DefaultToolbar {...props}>
-            <TldrawUiMenuItem {...tools["icon"]} isSelected={isIconSelected} />
-            <CustomToolbarContent />
-          </DefaultToolbar>
+          <>
+            <style>{`
+              .tlui-toolbar__tools .tlui-toolbar__tools__list > button[data-testid="tools.icon"],
+              .tlui-toolbar__tools .tlui-toolbar__tools__list > button[data-testid="tools.eraser"] {
+                display: none;
+              }
+            `}</style>
+            <DefaultToolbar {...props}>
+              <TldrawUiMenuItem {...tools["icon"]} isSelected={isIconSelected} />
+              <CustomToolbarContent />
+            </DefaultToolbar>
+          </>
         );
       },
       QuickActions: () => {
