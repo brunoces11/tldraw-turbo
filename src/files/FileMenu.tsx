@@ -25,7 +25,6 @@ export function FileMenu() {
   const {
     files,
     currentFile,
-    draftName,
     createDraft,
     openFile,
     renameFile,
@@ -49,7 +48,7 @@ export function FileMenu() {
   );
 
   const activeFile = currentFile ? files.find((file) => file.id === currentFile.id) ?? null : null;
-  const activeName = activeFile?.name ?? draftName;
+  const activeName = activeFile?.name ?? "New file";
 
   useLayoutEffect(() => {
     setSortablePositionItems(
