@@ -10,10 +10,12 @@ export function CustomQuickActions({
   currentStep,
   maxStep,
   isPresentationEditModeActive,
+  maxPresentationGroupId,
 }: {
   currentStep: number;
   maxStep: number;
   isPresentationEditModeActive: boolean;
+  maxPresentationGroupId: number;
 }) {
   const actions = useActions();
   const transformedActions = transformActionForMenuItem(actions);
@@ -26,11 +28,38 @@ export function CustomQuickActions({
           {isPresentationEditModeActive ? (
             <div
               style={{
+                alignItems: "center",
                 backgroundColor: "rgb(216, 219, 219)",
                 borderRadius: "4px",
+                display: "flex",
+                gap: "2px",
+                paddingRight: "6px",
               }}
             >
               <TldrawUiMenuItem {...transformedActions["presentation-edit"]} />
+              <span
+                aria-label={`Highest presentation order: ${maxPresentationGroupId}`}
+                data-testid="presentation-max-group-id"
+                style={{
+                  alignItems: "center",
+                  backgroundColor: "#ffffff",
+                  border: "1px solid rgba(15, 23, 42, 0.14)",
+                  borderRadius: "999px",
+                  color: "#111827",
+                  display: "inline-flex",
+                  fontSize: "11px",
+                  fontVariantNumeric: "tabular-nums",
+                  fontWeight: 700,
+                  height: "20px",
+                  justifyContent: "center",
+                  lineHeight: 1,
+                  minWidth: "24px",
+                  padding: "0 7px",
+                  pointerEvents: "none",
+                }}
+              >
+                {maxPresentationGroupId}
+              </span>
             </div>
           ) : (
             <TldrawUiMenuItem {...transformedActions["presentation-edit"]} />

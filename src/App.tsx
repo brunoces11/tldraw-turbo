@@ -31,13 +31,14 @@ import {
   ToolbarItem,
   TriangleToolbarItem,
   useEditor,
+  useValue,
   XBoxToolbarItem,
 } from "tldraw";
 import { useMemo, useRef, useState } from "react";
 import "tldraw/tldraw.css";
 import { InFrontOfTheCanvas } from "./InFrontOfTheCanvas";
 import { CustomQuickActions } from "./CustomQuickActions";
-import { getUniqueGroupIdsInOrder } from "./getUniqueGroupIdsInOrder";
+import { getMaxPresentationGroupId, getUniqueGroupIdsInOrder } from "./getUniqueGroupIdsInOrder";
 import { getNewActions } from "./getNewActions";
 import { assetUrls } from "./assetUrls";
 import { SharePanel } from "./SharePanel";
@@ -115,6 +116,10 @@ function TldrawApp() {
               [data-testid="tools.more-content"] > button[data-testid="tools.more.scalable-note"] {
                 display: none !important;
               }
+
+              .presentation-edit-mode .tlui-image__toolbar {
+                margin-left: -96px;
+              }
             `}</style>
             <DefaultToolbar {...props}>
               <CustomToolbarContent />
@@ -124,13 +129,23 @@ function TldrawApp() {
       },
       QuickActions: () => {
         const editor = useEditor();
-        const uniqueGroupIdsInOrder = getUniqueGroupIdsInOrder(editor);
+        const uniqueGroupIdsInOrder = useValue(
+          "presentation group ids",
+          () => getUniqueGroupIdsInOrder(editor),
+          [editor],
+        );
+        const maxPresentationGroupId = useValue(
+          "max presentation group id",
+          () => getMaxPresentationGroupId(editor),
+          [editor],
+        );
         const maxStep = uniqueGroupIdsInOrder.length - 1;
         return (
           <CustomQuickActions
             currentStep={currentStep}
             maxStep={maxStep}
             isPresentationEditModeActive={isPresentationEditModeActive}
+            maxPresentationGroupId={maxPresentationGroupId}
           />
         );
       },
@@ -172,7 +187,10 @@ function TldrawApp() {
   );
 
   return (
-    <div style={{ position: "fixed", inset: 0 }}>
+    <div
+      className={isPresentationEditModeActive ? "presentation-edit-mode" : undefined}
+      style={{ position: "fixed", inset: 0 }}
+    >
       <Tldraw
         onUiEvent={(event) => {
           if (event === "change-page") {

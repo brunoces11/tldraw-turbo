@@ -6,3 +6,10 @@ export function getUniqueGroupIdsInOrder(editor: Editor) {
   const uniqueGroupIdsInOrder = [...new Set(groupIds)].sort((a, b) => a - b);
   return uniqueGroupIdsInOrder;
 }
+
+export function getMaxPresentationGroupId(editor: Editor) {
+  return editor.getCurrentPageShapes().reduce((maxGroupId, shape) => {
+    const groupId = Number(shape.meta.groupId);
+    return Number.isFinite(groupId) && groupId > maxGroupId ? groupId : maxGroupId;
+  }, 0);
+}
