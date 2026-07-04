@@ -28,3 +28,6 @@ release.sh
 
 # Local Netlify folder
 .netlify
+
+# Local canvas files
+files/
