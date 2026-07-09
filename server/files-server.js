@@ -1,4 +1,5 @@
 import express from "express";
+import { existsSync } from "node:fs";
 import { mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,8 +8,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
 const filesDir = path.join(rootDir, "files");
 const manifestPath = path.join(filesDir, "manifest.json");
+const distDir = path.join(rootDir, "dist");
+const distIndexPath = path.join(distDir, "index.html");
 const app = express();
-const port = Number(process.env.FILES_SERVER_PORT ?? 5174);
+const isProduction = process.env.NODE_ENV === "production";
+const shouldServeStaticApp = existsSync(distIndexPath);
+const port = Number(process.env.PORT ?? process.env.FILES_SERVER_PORT ?? (isProduction ? 3000 : 5174));
 
 app.use(express.json({ limit: "50mb" }));
 
@@ -211,6 +216,18 @@ app.delete("/api/files/:id", async (req, res, next) => {
     next(error);
   }
 });
+
+app.use("/api", (_req, res) => {
+  res.status(404).json({ error: "API route not found" });
+});
+
+if (shouldServeStaticApp) {
+  app.use(express.static(distDir));
+
+  app.get("/{*splat}", (_req, res) => {
+    res.sendFile(distIndexPath);
+  });
+}
 
 app.use((error, _req, res, _next) => {
   console.error(error);

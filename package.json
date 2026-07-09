@@ -7,6 +7,7 @@
     "dev": "concurrently \"npm run dev:files\" \"npm run dev:web\"",
     "dev:web": "vite --port 5180 --strictPort",
     "dev:files": "node server/files-server.js",
+    "start": "node server/files-server.js",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
