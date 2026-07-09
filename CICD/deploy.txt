@@ -1,0 +1,16 @@
+DEPLOY FLOW - CICD/deploy.ps1
+
+Versioning: auto-increment patch from the current compose image tag
+
+1. Start Docker inside WSL Ubuntu and wait for it to be ready.
+2. Read the current image tag from the local compose file and increment the patch version by 1.
+3. Move to the repo root and read the current short git commit hash.
+4. Log in to GHCR using the GitHub CLI token.
+5. Build the Docker image from the local repo context.
+6. Tag the image as the new version, as the short commit hash, and as `latest`.
+7. Push all three tags to `ghcr.io/brunoces11/monitor-hub`.
+8. Create a timestamped backup of the local compose file.
+9. Replace the image tag in the local compose file with the new version.
+10. Copy the updated compose file to `/compose/hub_monitor.yml` on the VPS.
+11. On the VPS, run `docker compose pull` and `docker compose up -d --force-recreate`.
+12. Print status, active image, mounted volumes, and the last logs for `hub_monitor`.
