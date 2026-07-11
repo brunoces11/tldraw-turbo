@@ -3,6 +3,7 @@ import { getIcon } from "./selectedIcon";
 import { getSvgIcon } from "./getSvgIcon";
 import { getFillColor } from "./getFillColor";
 import { ENTER_EVENT_NAME, EXIT_EVENT_NAME } from "./constants";
+import { svgStringToBase64 } from "../svgStringToBase64";
 
 export class IconTool extends StateNode {
   static override id = "icon" as const;
@@ -59,9 +60,4 @@ export class IconTool extends StateNode {
       },
     });
   }
-}
-
-function svgStringToBase64(svgString: string) {
-  const base64 = btoa(unescape(encodeURIComponent(svgString)));
-  return `data:image/svg+xml;base64,${base64}`;
 }

@@ -4,6 +4,7 @@ import {
   ArrowRightToolbarItem,
   ArrowToolbarItem,
   ArrowUpToolbarItem,
+  AssetRecordType,
   AssetToolbarItem,
   CheckBoxToolbarItem,
   CloudToolbarItem,
@@ -29,6 +30,7 @@ import {
   StarToolbarItem,
   TextToolbarItem,
   TLGeoShape,
+  TLImageShape,
   Tldraw,
   TldrawUiButtonIcon,
   TldrawUiToolbarButton,
@@ -59,6 +61,7 @@ import {
   ScalableNoteShapeTool,
   ScalableNoteShapeUtil,
 } from "./ScalableNoteTool/ScalableNoteShapeUtil";
+import { svgStringToBase64 } from "./svgStringToBase64";
 
 export default function App() {
   return (
@@ -249,6 +252,7 @@ function CustomToolbarContent() {
       <RhombusToolbarItem />
       <StarToolbarItem />
       <AddYellowStarToolbarItem />
+      <AddRedEightPointStarToolbarItem />
 
       <CloudToolbarItem />
       <HeartToolbarItem />
@@ -309,4 +313,71 @@ function AddYellowStarToolbarItem() {
       <TldrawUiButtonIcon icon="geo-star" />
     </TldrawUiToolbarButton>
   );
+}
+
+function AddRedEightPointStarToolbarItem() {
+  const editor = useEditor();
+
+  const handleClick = () => {
+    const size = 160;
+    const center = editor.getViewportPageBounds().center;
+    const assetId = AssetRecordType.createId();
+    const shapeId = createShapeId();
+
+    editor.markHistoryStoppingPoint(`creating_red_eight_point_star:${shapeId}`);
+    editor.createAssets([
+      {
+        id: assetId,
+        typeName: "asset",
+        type: "image",
+        meta: {},
+        props: {
+          w: size,
+          h: size,
+          mimeType: "image/svg+xml",
+          src: svgStringToBase64(createEightPointStarSvg(size)),
+          name: "red-eight-point-star.svg",
+          isAnimated: false,
+        },
+      },
+    ]);
+    editor
+      .createShape<TLImageShape>({
+        id: shapeId,
+        type: "image",
+        x: center.x - size / 2,
+        y: center.y - size / 2,
+        props: {
+          w: size,
+          h: size,
+          assetId,
+        },
+      })
+      .select(shapeId);
+  };
+
+  return (
+    <TldrawUiToolbarButton
+      type="tool"
+      title="Add red 8-point star"
+      aria-label="Add red 8-point star"
+      data-testid="tools.add-red-eight-point-star"
+      onClick={handleClick}
+    >
+      <TldrawUiButtonIcon icon="geo-star" />
+    </TldrawUiToolbarButton>
+  );
+}
+
+function createEightPointStarSvg(size: number) {
+  const center = size / 2;
+  const outerRadius = size * 0.45;
+  const innerRadius = size * 0.2;
+  const points = Array.from({ length: 16 }, (_, index) => {
+    const radius = index % 2 === 0 ? outerRadius : innerRadius;
+    const angle = -Math.PI / 2 + (index * Math.PI) / 8;
+    return `${center + Math.cos(angle) * radius},${center + Math.sin(angle) * radius}`;
+  }).join(" ");
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><polygon points="${points}" fill="#e03131" stroke="#9b1c1c" stroke-width="6" stroke-linejoin="round"/></svg>`;
 }
