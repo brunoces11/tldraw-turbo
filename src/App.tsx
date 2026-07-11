@@ -7,6 +7,7 @@ import {
   AssetToolbarItem,
   CheckBoxToolbarItem,
   CloudToolbarItem,
+  createShapeId,
   DefaultToolbar,
   DiamondToolbarItem,
   DrawToolbarItem,
@@ -27,7 +28,10 @@ import {
   SelectToolbarItem,
   StarToolbarItem,
   TextToolbarItem,
+  TLGeoShape,
   Tldraw,
+  TldrawUiButtonIcon,
+  TldrawUiToolbarButton,
   ToolbarItem,
   TriangleToolbarItem,
   useEditor,
@@ -244,6 +248,7 @@ function CustomToolbarContent() {
       <OvalToolbarItem />
       <RhombusToolbarItem />
       <StarToolbarItem />
+      <AddYellowStarToolbarItem />
 
       <CloudToolbarItem />
       <HeartToolbarItem />
@@ -264,5 +269,44 @@ function CustomToolbarContent() {
       <ToolbarItem tool="icon" />
       <EraserToolbarItem />
     </>
+  );
+}
+
+function AddYellowStarToolbarItem() {
+  const editor = useEditor();
+
+  const handleClick = () => {
+    const size = 160;
+    const center = editor.getViewportPageBounds().center;
+    const id = createShapeId();
+
+    editor.markHistoryStoppingPoint(`creating_yellow_star:${id}`);
+    editor
+      .createShape<TLGeoShape>({
+        id,
+        type: "geo",
+        x: center.x - size / 2,
+        y: center.y - size / 2,
+        props: {
+          geo: "star",
+          w: size,
+          h: size,
+          color: "yellow",
+          fill: "solid",
+        },
+      })
+      .select(id);
+  };
+
+  return (
+    <TldrawUiToolbarButton
+      type="tool"
+      title="Add yellow star"
+      aria-label="Add yellow star"
+      data-testid="tools.add-yellow-star"
+      onClick={handleClick}
+    >
+      <TldrawUiButtonIcon icon="geo-star" />
+    </TldrawUiToolbarButton>
   );
 }
